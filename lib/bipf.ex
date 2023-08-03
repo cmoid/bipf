@@ -7,6 +7,8 @@ defmodule BIPF do
 
   iex> BIPF.loads(BIPF.dumps(nil))
   {:ok, nil, ""}
+
+
   """
 
   @doc """
@@ -54,11 +56,14 @@ defmodule BIPF do
 
   # ## Examples
 
-  # iex> BIPF.loads(06)
-  # {ok, null, ""}
+  iex> BIPF.loads(<<6>>)
+  {:ok, nil, ""}
 
-  # iex> BIPF.loads(0e00)
-  # {ok, false, ""}
+  iex> Base.decode16("0e00", case: :lower)
+  {:ok, <<14, 0>>}
+
+  iex> BIPF.loads(<<14, 0>>)
+  {:ok, false, ""}
 
   # iex> BIPF.loads(0e01)
   # {ok, true, ""}
