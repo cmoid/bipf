@@ -1,3 +1,5 @@
+import BIPF.Utils
+
 defprotocol BIPF.Encoder do
   @doc """
   Converts an Elixir data type to its representation in BiPF.
@@ -8,15 +10,15 @@ end
 
 defimpl BIPF.Encoder, for: Atom do
   def encode(false, acc) do
-    <<acc::binary, BIPF.Utils.create_tag(6, 1)::binary, 0>>
+    <<acc::binary, create_tag(6, 1)::binary, 0>>
   end
 
   def encode(true, acc) do
-    <<acc::binary, BIPF.Utils.create_tag(6, 1)::binary, 1>>
+    <<acc::binary, create_tag(6, 1)::binary, 1>>
   end
 
   def encode(nil, acc) do
-    <<acc::binary, BIPF.Utils.create_tag(6, 0)::binary>>
+    <<acc::binary, create_tag(6, 0)::binary>>
   end
 
   def encode(v, acc) do
@@ -26,22 +28,22 @@ end
 
 defimpl BIPF.Encoder, for: Integer do
   def encode(i, acc) do
-    sz = BIPF.Utils.int_byte_len(i) * 8
+    sz = int_byte_len(i) * 8
     <<num::size(sz), _z2::binary>> = <<i::signed-little-32>>
-    tag = BIPF.Utils.create_tag(2, BIPF.Utils.int_byte_len(i))
+    tag = create_tag(2, int_byte_len(i))
     <<acc::binary, tag::binary, num::size(sz)>>
   end
 end
 
 defimpl BIPF.Encoder, for: BitString do
   def encode(i, acc) do
-    tag = BIPF.Utils.create_tag(1, byte_size(i))
+    tag = create_tag(1, byte_size(i))
     <<acc::binary, tag::binary, i::binary>>
   end
 end
 
 defimpl BIPF.Encoder, for: List do
-  def encode([], acc), do: <<acc::binary, BIPF.Utils.create_tag(4, 0)::binary>>
+  def encode([], acc), do: <<acc::binary, create_tag(4, 0)::binary>>
 
   def encode(list, acc) do
     {tot_len, encoded_terms} =
@@ -50,12 +52,12 @@ defimpl BIPF.Encoder, for: List do
         {l + byte_size(t_code), <<collect::binary, t_code::binary>>}
       end)
 
-    <<acc::binary, BIPF.Utils.create_tag(4, tot_len)::binary, encoded_terms::binary>>
+    <<acc::binary, create_tag(4, tot_len)::binary, encoded_terms::binary>>
   end
 end
 
 defimpl BIPF.Encoder, for: Map do
-  def encode([], acc), do: <<acc::binary, BIPF.Utils.create_tag(5, 0)::binary>>
+  def encode([], acc), do: <<acc::binary, create_tag(5, 0)::binary>>
 
   def encode(map, acc) do
     {tot_len, encoded_terms} =
@@ -67,6 +69,6 @@ defimpl BIPF.Encoder, for: Map do
          <<collect::binary, k_code::binary, v_code::binary>>}
       end)
 
-    <<acc::binary, BIPF.Utils.create_tag(5, tot_len)::binary, encoded_terms::binary>>
+    <<acc::binary, create_tag(5, tot_len)::binary, encoded_terms::binary>>
   end
 end
