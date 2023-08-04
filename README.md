@@ -1,4 +1,4 @@
-# bipf
+# BIPF
 
 An implementation of [BIPF.tinySSB](https://github.com/ssbc/sips/blob/master/011.md)
 
