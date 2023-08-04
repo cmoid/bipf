@@ -35,6 +35,13 @@ defimpl BIPF.Encoder, for: Integer do
   end
 end
 
+defimpl BIPF.Encoder, for: Float do
+  def encode(fl, acc) do
+    fl_bin = :erlang.float_to_binary(fl, [:short])
+    BIPF.Encoder.encode(fl_bin, acc)
+  end
+end
+
 defimpl BIPF.Encoder, for: BitString do
   def encode(i, acc) do
     tag = create_tag(1, byte_size(i))
