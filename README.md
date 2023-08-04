@@ -1,6 +1,6 @@
 # bipf
 
-**TODO: Add description**
+An implementation of [BIPF.tinySSB](https://github.com/ssbc/sips/blob/master/011.md)
 
 ## Installation
 
