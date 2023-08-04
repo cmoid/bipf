@@ -27,7 +27,7 @@ end
 defimpl BIPF.Encoder, for: Integer do
   def encode(i, acc) do
     sz = BIPF.Utils.int_byte_len(i) * 8
-    <<num::size(sz), _z2::binary>> = <<i::little-32>>
+    <<num::size(sz), _z2::binary>> = <<i::signed-little-32>>
     tag = BIPF.Utils.tag(2, BIPF.Utils.int_byte_len(i))
     <<acc::binary, tag::binary, num::size(sz)>>
   end

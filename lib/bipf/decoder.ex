@@ -21,9 +21,7 @@ defmodule BIPF.Decoder do
   end
 
   defp decode_type(2, len, binary) do
-    <<n::size(len * 8), rest::binary>> = binary
-    <<ans::size(len * 8), _foo::binary>> = <<n::little-32>>
-    {ans, rest}
+    decode_int(binary, 0, 0, len)
   end
 
   defp decode_type(4, len, binary) do
@@ -70,5 +68,21 @@ defmodule BIPF.Decoder do
     {key, rest} = decode(binary)
     {val, rest2} = decode(rest)
     decode_map(rest2, Map.put(acc, key, val))
+  end
+
+  defp decode_int(bin, shift, ans, 0) do
+    ## this is bullshit Moid, please explain later!!
+    bit_check = 1 <<< (shift - 1)
+
+    case ans &&& bit_check do
+      0 -> {ans, bin}
+      _else -> {ans - (bit_check <<< 1), bin}
+    end
+  end
+
+  defp decode_int(bin, shift, ans, len) do
+    <<digit::8, rest::binary>> = bin
+    ans = ans ||| digit <<< shift
+    decode_int(rest, shift + 8, ans, len - 1)
   end
 end
