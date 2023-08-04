@@ -33,6 +33,10 @@ defmodule BIPF do
   iex> BIPF.loads(BIPF.dumps(%{123 => false}))
   {:ok, %{123 => false}, ""}
 
+  # Now a list with ints, booleans, sublists, and objects
+  iex> BIPF.loads(BIPF.dumps([123, true, -345, nil, [-345, false, %{57 => true}]]))
+  {:ok, [123, true, -345, nil, [-345, false, %{57 => true}]], ""}
+
 
   """
 

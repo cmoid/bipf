@@ -1,18 +1,11 @@
 defmodule BIPF.Decoder do
   import Bitwise
+  import BIPF.Utils
 
   def decode(binary) do
     {tag, rest} = extract_tag(binary)
-    decode_tag(tag, rest)
-  end
-
-  defp extract_tag(binary) do
-    Varint.LEB128.decode(binary)
-  end
-
-  defp decode_tag(tag, binary) do
-    {type, len} = parse(tag)
-    decode_type(type, len, binary)
+    {type, len} = parse_tag(tag)
+    decode_type(type, len, rest)
   end
 
   defp decode_type(1, len, binary) do
@@ -44,11 +37,6 @@ defmodule BIPF.Decoder do
       end
 
     {val, rest}
-  end
-
-  defp parse(tag) do
-    len = tag >>> 3
-    {tag - (len <<< 3), len}
   end
 
   defp decode_list(<<>>, acc) do
