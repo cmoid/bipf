@@ -8,6 +8,31 @@ defmodule BIPF do
   iex> BIPF.loads(BIPF.dumps(nil))
   {:ok, nil, ""}
 
+  iex> BIPF.loads(BIPF.dumps("foo"))
+  {:ok, "foo", ""}
+
+  iex> BIPF.loads(BIPF.dumps(123))
+  {:ok, 123, ""}
+
+  iex> BIPF.loads(BIPF.dumps(-123))
+  {:ok, -123, ""}
+
+  iex> BIPF.loads(BIPF.dumps("¥€$!"))
+  {:ok, "¥€$!", ""}
+
+  ## let's get two bytes
+  iex> BIPF.loads(BIPF.dumps(345))
+  {:ok, 345, ""}
+
+  iex> BIPF.loads(BIPF.dumps(-345))
+  {:ok, -345, ""}
+
+  iex> BIPF.loads(BIPF.dumps(%{123 => true}))
+  {:ok, %{123 => true}, ""}
+
+  iex> BIPF.loads(BIPF.dumps(%{123 => false}))
+  {:ok, %{123 => false}, ""}
+
 
   """
 
@@ -65,30 +90,39 @@ defmodule BIPF do
   iex> BIPF.loads(<<14, 0>>)
   {:ok, false, ""}
 
-  # iex> BIPF.loads(0e01)
-  # {ok, true, ""}
+  iex> Base.decode16("0e01", case: :lower)
+  {:ok, <<14, 1>>}
 
-  # iex> BIPF.loads(0a7b)
-  # {ok, 123, ""}
+  iex> BIPF.loads(<<14, 1>>)
+  {:ok, true, ""}
 
-  # iex> BIPF.loads(0a85)
-  # {ok, -123, ""}
+  iex> Base.decode16("0a7b", case: :lower)
+  {:ok, "\n{"}
 
-  # iex> BIPF.loads(39c2a5e282ac2421)
-  # {ok, "¥€$!", ""}
+  # escape newline, ugh!!!
+  iex> BIPF.loads("\\n{")
+  {:ok, 123, ""}
+
+  iex> Base.decode16("0a85", case: :lower)
+  {:ok, <<10, 133>>}
+
+  iex> BIPF.loads(<<10, 133>>)
+  {:ok, -123, ""}
+
+  iex> Base.decode16("39c2a5e282ac2421", case: :lower)
+  {:ok, "9¥€$!"}
+
+  iex> BIPF.loads("9¥€$!")
+  {:ok, "¥€$!", ""}
 
   # iex> BIPF.loads(11abcd)
   # {ok, #ABCD#, ""}
 
-  iex> BIPF.loads(BIPF.dumps(%{123 => true}))
-  {:ok, %{123 => true}, ""}
+  iex> Base.decode16("250a7b0e00", case: :lower)
+  {:ok, <<37, 10, 123, 14, 0>>}
 
-  iex> BIPF.loads(BIPF.dumps(%{123 => false}))
+  iex> BIPF.loads(<<37, 10, 123, 14, 0>>)
   {:ok, %{123 => false}, ""}
-
-
-  # iex> BIPF.loads(250a7b0e00)
-  # {ok, {123:false}, ""}
 
   # iex> BIPF.loads(3d11abcd1c0a7b06)
   # {ok, {#ABCD#:[123,null]}, ""}
