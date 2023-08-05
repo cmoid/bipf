@@ -1,5 +1,8 @@
 defmodule BIPF do
   @moduledoc """
+  SPDX-License-Identifier: GPL-2.0-only
+  Copyright (C) 2023 Charles Moid
+
   BIPF (Binary In Place Format) is an implementaion of [BIPF.tinySSB](https://github.com/ssbc/sips/blob/master/011.md),
   a binary serialization format for JSON designed for optimal use in memory.
 
@@ -27,13 +30,14 @@ defmodule BIPF do
   iex> BIPF.loads(BIPF.dumps(-345))
   {:ok, -345, ""}
 
+  ## Now an object
   iex> BIPF.loads(BIPF.dumps(%{123 => true}))
   {:ok, %{123 => true}, ""}
 
   iex> BIPF.loads(BIPF.dumps(%{123 => false}))
   {:ok, %{123 => false}, ""}
 
-  # Now a list with ints, booleans, sublists, and objects
+  ## Now a list with ints, booleans, sublists, and objects
   iex> BIPF.loads(BIPF.dumps([123, true, -345, nil, [-345, false, %{57 => true}]]))
   {:ok, [123, true, -345, nil, [-345, false, %{57 => true}]], ""}
 
@@ -63,17 +67,11 @@ defmodule BIPF do
   iex> Base.encode16(BIPF.dumps("¥€$!"), case: :lower)
   "39c2a5e282ac2421"
 
-  # iex> BIPF.dumps(#ABCD#)
-  # 11abcd
-
   iex> Base.encode16(BIPF.dumps([123,true]), case: :lower)
   "240a7b0e01"
 
   iex> Base.encode16(BIPF.dumps(%{123 => false}), case: :lower)
   "250a7b0e00"
-
-  # iex> BIPF.dumps({#ABCD#:[123,null]}))
-  # 3d11abcd1c0a7b06
 
   """
   @spec dumps(any()) :: binary()
@@ -83,7 +81,7 @@ defmodule BIPF do
   @doc """
   Converts a BIPFencoded binary into native elixir data structures
 
-  # ## Examples
+  ## Examples
 
   iex> BIPF.loads(<<6>>)
   {:ok, nil, ""}
@@ -103,7 +101,7 @@ defmodule BIPF do
   iex> Base.decode16("0a7b", case: :lower)
   {:ok, "\n{"}
 
-  # escape newline, ugh!!!
+  ## escape newline, ugh!!!
   iex> BIPF.loads("\\n{")
   {:ok, 123, ""}
 
@@ -119,17 +117,11 @@ defmodule BIPF do
   iex> BIPF.loads("9¥€$!")
   {:ok, "¥€$!", ""}
 
-  # iex> BIPF.loads(11abcd)
-  # {ok, #ABCD#, ""}
-
   iex> Base.decode16("250a7b0e00", case: :lower)
   {:ok, <<37, 10, 123, 14, 0>>}
 
   iex> BIPF.loads(<<37, 10, 123, 14, 0>>)
   {:ok, %{123 => false}, ""}
-
-  # iex> BIPF.loads(3d11abcd1c0a7b06)
-  # {ok, {#ABCD#:[123,null]}, ""}
 
   """
   @spec loads(binary()) :: {:ok, any(), binary()} | {:error, atom}
